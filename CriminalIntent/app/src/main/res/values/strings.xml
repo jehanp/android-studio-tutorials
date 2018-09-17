@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Criminal Intent</string>
+
     <string name="crime_title_hint">Enter a title for the crime</string>
     <string name="crime_title_label">Title</string>
     <string name="crime_details_label">Details</string>
@@ -14,4 +15,17 @@
     <string name="time_picker_title">Time of Crime:</string>
 
     <string name="okay_button">OK</string>
+
+    <string name="new_crime">New Crime</string>
+    <string name="show_subtitle">Show Subtitle</string>
+    <string name="hide_subtitle">Hide Subtitle</string>
+
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$d crime</item>
+        <item quantity="other">%1$d crimes</item>
+    </plurals>
+
+    <string name="no_crimes_label">There are no crimes. Tap + to add a crime.</string>
+    <string name="add_first_crime_button">Add Crime</string>
+
 </resources>

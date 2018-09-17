@@ -43,7 +43,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_crime_pager);
 
         UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
-        int adapterPosition = (int) getIntent().getSerializableExtra(ADAPTER_POSITION);
+        mCrimes = CrimeLab.get(this).getCrimes();
 
         mViewPager = (ViewPager) findViewById(R.id.crime_view_pager);
         mJumpToFirst = (Button) findViewById(R.id.jump_to_first);
@@ -62,7 +62,11 @@ public class CrimePagerActivity extends AppCompatActivity {
             }
         });
 
-        mCrimes = CrimeLab.get(this).getCrimes();
+        if(mCrimes.size()<2){
+            mJumpToFirst.setVisibility(View.INVISIBLE);
+            mJumpToLast.setVisibility(View.INVISIBLE);
+        }
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override
@@ -88,13 +92,10 @@ public class CrimePagerActivity extends AppCompatActivity {
             }
         });
 
-        mViewPager.setCurrentItem(adapterPosition);
-        setIntentResult();
-    }
-
-    public void setIntentResult(){
-        Intent intent = CrimeListFragment.newIntent(this, (int) getIntent().getSerializableExtra(ADAPTER_POSITION));
-        setResult(Activity.RESULT_OK, intent);
+        if(getIntent().getSerializableExtra(ADAPTER_POSITION) != null){
+            int adapterPosition = (int) getIntent().getSerializableExtra(ADAPTER_POSITION);
+            mViewPager.setCurrentItem(adapterPosition);
+        }
     }
 
     private void setButtonVisibility(){
