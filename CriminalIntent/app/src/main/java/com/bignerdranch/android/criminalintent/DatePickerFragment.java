@@ -1,18 +1,14 @@
 package com.bignerdranch.android.criminalintent;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
@@ -30,6 +26,7 @@ public class DatePickerFragment extends Fragment {
     private static Calendar mCalendar;
 
     private DatePicker mDatePicker;
+    private Button mOkayButton;
 
     public static DatePickerFragment newInstance(Date date){
         Bundle args = new Bundle();
@@ -44,11 +41,10 @@ public class DatePickerFragment extends Fragment {
         return fragment;
     }
 
-/*    @Override
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-    }*/
+    }
 
     @Nullable
     @Override
@@ -65,50 +61,30 @@ public class DatePickerFragment extends Fragment {
         mDatePicker = (DatePicker) v.findViewById(R.id.dialog_date_picker);
         mDatePicker.init(year, month, day, null);
 
+        mOkayButton = (Button) v.findViewById(R.id.okay_button);
+        mOkayButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Date date= new GregorianCalendar(
+                        mDatePicker.getYear(),
+                        mDatePicker.getMonth(),
+                        mDatePicker.getDayOfMonth(),
+                        mCalendar.get(Calendar.HOUR_OF_DAY),
+                        mCalendar.get(Calendar.MINUTE)
+                ).getTime();
+                sendResult(getActivity().RESULT_OK, date);
+
+                getActivity().finish();
+            }
+        });
+
         return v;
     }
 
-    /*@NonNull
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        int year = (int) getArguments().getSerializable(ARG_DATE_YEAR);
-        int month = (int) getArguments().getSerializable(ARG_DATE_MONTH);
-        int day = (int) getArguments().getSerializable(ARG_DATE_DAY);
-
-        View v = LayoutInflater.from(getActivity())
-                .inflate(R.layout.dialog_date, null);
-
-        mDatePicker = (DatePicker) v.findViewById(R.id.dialog_date_picker);
-        mDatePicker.init(year, month, day, null);
-
-        return new AlertDialog.Builder(getActivity())
-                .setView(v)
-                .setTitle(R.string.date_picker_title)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Date date= new GregorianCalendar(
-                                mDatePicker.getYear(),
-                                mDatePicker.getMonth(),
-                                mDatePicker.getDayOfMonth(),
-                                mCalendar.get(Calendar.HOUR_OF_DAY),
-                                mCalendar.get(Calendar.MINUTE)
-                        ).getTime();
-                        sendResult(Activity.RESULT_OK, date);
-                    }
-                })
-                .create();
-    }*/
-
     private void sendResult(int resultCode, Date date){
-        if(getTargetFragment() == null){
-            return;
-        }
-
         Intent intent = new Intent();
         intent.putExtra(EXTRA_DATE, date);
 
-        getTargetFragment()
-                .onActivityResult(getTargetRequestCode(), resultCode, intent);
+        getActivity().setResult(resultCode, intent);
     }
 }
