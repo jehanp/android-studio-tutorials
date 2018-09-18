@@ -59,12 +59,6 @@ public class CrimeListFragment extends Fragment{
 
         mAddFirstCrimeLinearLayout = (LinearLayout) view.findViewById(R.id.add_first_crime_placeholder);
 
-        /*for(int i=0; i<mAddFirstCrimeLinearLayout.getChildCount(); i++){
-            int id = mAddFirstCrimeLinearLayout.getChildAt(i).getId();
-            if( id == R.id.add_first_crime_button){
-                mAddFirstCrimeButton = (Button)mAddFirstCrimeLinearLayout.getChildAt(i);
-            }
-        }*/
         mAddFirstCrimeButton = (ImageButton)mAddFirstCrimeLinearLayout.findViewById(R.id.add_first_crime_button);
         mAddFirstCrimeButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -82,7 +76,7 @@ public class CrimeListFragment extends Fragment{
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
 
-        updateCrimeListUI();
+        //updateCrimeListUI();
 
         return view;
     }
@@ -90,13 +84,8 @@ public class CrimeListFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        //If single activity hosting a single crime fragment is used
-        //updateCrimeItemUI(selectedItemAdapterPosition);
 
-        //If a ViewPager is used
         updateCrimeListUI();
-
-        updateSubtitle();
     }
 
     @Override
@@ -140,20 +129,14 @@ public class CrimeListFragment extends Fragment{
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         }else{
+            mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
 
         if(crimes.size()==0){
-            //set visibility
             mAddFirstCrimeLinearLayout.setVisibility(View.VISIBLE);
         }else{
             mAddFirstCrimeLinearLayout.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void updateCrimeItemUI(int position){
-        if(position>=0){
-            mAdapter.notifyItemChanged(position);
         }
     }
 
@@ -241,6 +224,10 @@ public class CrimeListFragment extends Fragment{
             }else{
                 return R.layout.list_item_crime;
             }
+        }
+
+        public void setCrimes(List<Crime> crimes){
+            mCrimes = crimes;
         }
     }
 
