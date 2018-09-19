@@ -28,4 +28,18 @@
     <string name="no_crimes_label">There are no crimes. Tap + to add a crime.</string>
     <string name="add_first_crime_button">Add Crime</string>
 
+    <string name="crime_suspect_text">Choose Suspect</string>
+    <string name="call_suspect_text">Call Suspect</string>
+    <string name="crime_report_text">Send Crime Report</string>
+    <string name="crime_report">%1$s!
+        The crime was discovered on %2$s. %3$s, and %4$s
+    </string>
+    <string name="crime_report_solved">The case is solved</string>
+    <string name="crime_report_unsolved">The case is not solved</string>
+    <string name="crime_report_no_suspect">there is no suspect.</string>
+    <string name="crime_report_suspect">the suspect is %s</string>
+    <string name="crime_report_subject">CriminalIntent Crime Report</string>
+    <string name="send_report">Send crime report via</string>
+    <string name="call_suspect_subject">CriminalIntent Call Suspect</string>
+
 </resources>

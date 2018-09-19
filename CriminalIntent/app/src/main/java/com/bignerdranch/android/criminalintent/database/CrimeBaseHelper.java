@@ -16,8 +16,8 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sql = String.format("create table %s ( _id integer primary key autoincrement, %s, %s, %s, %s, %s)",
-                CrimeTable.NAME, CrimeTable.Cols.UUID, CrimeTable.Cols.TITLE, CrimeTable.Cols.DATE, CrimeTable.Cols.SOLVED, CrimeTable.Cols.POLICE_REQUIRED);
+        String sql = String.format("create table %s ( _id integer primary key autoincrement, %s, %s, %s, %s, %s, %s, %s)",
+                CrimeTable.NAME, CrimeTable.Cols.UUID, CrimeTable.Cols.TITLE, CrimeTable.Cols.DATE, CrimeTable.Cols.SOLVED, CrimeTable.Cols.SUSPECT, CrimeTable.Cols.SUSPECT_CONTACT, CrimeTable.Cols.POLICE_REQUIRED);
         db.execSQL(sql);
     }
 
