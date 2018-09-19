@@ -239,6 +239,7 @@ public class CrimeFragment extends Fragment {
 
                     Cursor c = getActivity().getContentResolver().query(contactUri, queryContactName, null, null, null);
 
+                    String suspect;
                     String suspectId;
                     try{
                         if(c.getCount() == 0){
@@ -246,7 +247,7 @@ public class CrimeFragment extends Fragment {
                         }
 
                         c.moveToFirst();
-                        String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                         mCrime.setSuspect(suspect);
                         mSuspectButton.setText(suspect);
 
@@ -257,14 +258,15 @@ public class CrimeFragment extends Fragment {
                         c.close();
                     }
 
-                    String[] queryContactPhone = new String[] {ContactsContract.CommonDataKinds.Phone._ID, ContactsContract.CommonDataKinds.Phone.NUMBER};
-                    String selection = ContactsContract.CommonDataKinds.Phone._ID + " = ?";
+                    String[] queryContactPhone = new String[] {ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.NUMBER};
+                    String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
                     String[] selectionArgs = new String[] {suspectId};
 
                     c = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, queryContactPhone, selection, selectionArgs, null);
 
                     try{
                         if(c.getCount() == 0){
+                            mCallSuspect.setEnabled(false);
                             return;
                         }
 
@@ -274,7 +276,7 @@ public class CrimeFragment extends Fragment {
                         phoneNo = phoneNo.replace(") ", "");
                         phoneNo = phoneNo.replace("-", "");
                         mCrime.setSuspectContact(phoneNo);
-                        //mCallSuspect.setText(phoneNo);
+                        mCallSuspect.setEnabled(true);
                     }finally {
                         c.close();
                     }

@@ -62,7 +62,7 @@ public class CrimePagerActivity extends AppCompatActivity {
             }
         });
 
-        if(mCrimes.size()<2){
+        if(mCrimes.size()<=2){
             mJumpToFirst.setVisibility(View.INVISIBLE);
             mJumpToLast.setVisibility(View.INVISIBLE);
         }
