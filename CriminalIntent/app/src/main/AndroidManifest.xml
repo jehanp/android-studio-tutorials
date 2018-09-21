@@ -4,6 +4,9 @@
 
     <uses-sdk android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-feature
+        android:name="android.hardware.camera2"
+        android:required="false"/>
 
     <application
         android:allowBackup="true"
@@ -16,8 +19,16 @@
         <activity
             android:name=".CrimePagerActivity"
             android:parentActivityName=".CrimeListActivity">
-
         </activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.bignerdranch.android.criminalintent.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files"/>
+        </provider>
 
         <activity android:name=".CrimeListActivity">
             <intent-filter>

@@ -74,6 +74,10 @@ public class Crime {
         mSuspectContact = suspectContact;
     }
 
+    public String getPhotoFilename(){
+        return "IMG_" + getId().toString() + ".jpg";
+    }
+
     public String dateToString(){
         return DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(mDate) + " " + DateFormat.getDateInstance().format(mDate);
     }

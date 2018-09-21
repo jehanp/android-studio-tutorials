@@ -83,7 +83,6 @@ public class CrimePagerActivity extends AppCompatActivity {
 
             @Override
             public boolean isViewFromObject(View view, Object object) {
-                Log.d(TAG,"isViewFromObject(View, Object) called ");
                 boolean isViewFromCurrentObject = super.isViewFromObject(view, object);
                 if(isViewFromCurrentObject){
                     setButtonVisibility();
@@ -99,7 +98,6 @@ public class CrimePagerActivity extends AppCompatActivity {
     }
 
     private void setButtonVisibility(){
-        Log.d(TAG, "setButtonVisibility() called");
         if(mViewPager.getCurrentItem()==0){
             mJumpToFirst.setEnabled(false);
             mJumpToLast.setEnabled(true);
