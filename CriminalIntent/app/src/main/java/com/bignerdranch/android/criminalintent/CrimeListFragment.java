@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+
+import javax.security.auth.callback.Callback;
 
 /**
  * Base class for a crime list fragment.
@@ -42,6 +45,20 @@ public class CrimeListFragment extends Fragment{
     private LinearLayout mAddFirstCrimeLinearLayout;
     private ImageButton mAddFirstCrimeButton;
     private int selectedItemAdapterPosition;
+    private Callbacks mCallbacks;
+
+    private ItemTouchHelper mItemTouchHelper;
+
+    public interface Callbacks{
+        void onCrimeSelected(Crime crime, int adapterPosition);
+        void onCrimeSwipedLeft(int adapterPosition);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,11 +89,26 @@ public class CrimeListFragment extends Fragment{
             }
         });
 
+        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP|ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolderSource, @NonNull RecyclerView.ViewHolder viewHolderTarget) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int adapterPosition) {
+                Log.d(TAG, "Item swiped");
+                Crime crime = ((CrimeHolder) viewHolder).mCrime;
+                CrimeLab.get(getActivity()).deleteCrime(crime); //Delete from CrimeLab
+                mAdapter.deleteCrime(crime);                    //Delete from adapter
+                mCallbacks.onCrimeSwipedLeft(adapterPosition);  //Delete from detail_fragment_container
+            }
+        });
+        mItemTouchHelper.attachToRecyclerView(mCrimeRecyclerView);
+
         if(savedInstanceState != null){
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
-
-        //updateCrimeListUI();
 
         return view;
     }
@@ -109,8 +141,7 @@ public class CrimeListFragment extends Fragment{
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
 
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId(), position);
-                startActivity(intent);
+                mCallbacks.onCrimeSelected(crime, position);
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -121,7 +152,7 @@ public class CrimeListFragment extends Fragment{
         }
     }
 
-    private void updateCrimeListUI(){
+    public void updateCrimeListUI(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -157,6 +188,12 @@ public class CrimeListFragment extends Fragment{
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -206,7 +243,7 @@ public class CrimeListFragment extends Fragment{
         public void onBindViewHolder(@NonNull CrimeHolder crimeHolder, int position) {
             Crime crime = mCrimes.get(position);
             crimeHolder.bind(crime);
-    }
+        }
 
         /**
          * Returns the count of the items in the list
@@ -229,6 +266,12 @@ public class CrimeListFragment extends Fragment{
         public void setCrimes(List<Crime> crimes){
             mCrimes = crimes;
         }
+        public void deleteCrime(Crime crime){
+            if(mCrimes.contains(crime)){
+                mCrimes.remove(crime);
+            }
+        }
+
     }
 
     /**
@@ -282,8 +325,7 @@ public class CrimeListFragment extends Fragment{
 
         @Override
         public void onClick(View view) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId(), getAdapterPosition());
-            startActivityForResult(intent, REQUEST_CRIME);
+            mCallbacks.onCrimeSelected(mCrime, getAdapterPosition());
         }
     }
 }

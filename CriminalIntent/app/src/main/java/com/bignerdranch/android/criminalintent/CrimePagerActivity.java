@@ -17,7 +17,7 @@ import android.widget.Button;
 import java.util.List;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.Callbacks {
 
     private static final String TAG = "CrimePagerActivity";
 
@@ -108,5 +108,15 @@ public class CrimePagerActivity extends AppCompatActivity {
             mJumpToFirst.setEnabled(true);
             mJumpToLast.setEnabled(true);
         }
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+
+    }
+
+    @Override
+    public void onCrimeDeleted(int adapterPosition) {
+        this.finish();
     }
 }
