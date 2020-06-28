@@ -11,6 +11,8 @@ import com.bignerdranch.android.criminalintent.database.CrimeDbSchema;
 import com.bignerdranch.android.criminalintent.database.CrimeDbSchema.CrimeTable;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +21,8 @@ public class CrimeLab {
 
     private Context mContext;
     private SQLiteDatabase mDatabase;
+    private String filterWhereClause = null;
+    private String[] filterWhereArgs = null;
 
     public static CrimeLab get(Context context){
         if(sCrimeLab == null){
@@ -55,7 +59,54 @@ public class CrimeLab {
 
     public List<Crime> getCrimes() {
         List<Crime> crimes = new ArrayList<>();
-        CrimeCursorWrapper cursor = queryCrimes(null,null);
+        CrimeCursorWrapper cursor = queryCrimes(filterWhereClause, filterWhereArgs);
+
+        try{
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()){
+                crimes.add(cursor.getCrime());
+                cursor.moveToNext();
+            }
+        }finally{
+            cursor.close();
+        }
+        return crimes;
+    }
+
+    public void setDateFilter(Date date) {
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(date);
+        calendar1.set(Calendar.HOUR, 0);
+        calendar1.set(Calendar.MINUTE, 0);
+        calendar1.set(Calendar.SECOND, 0);
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(date);
+        calendar2.set(Calendar.HOUR, 23);
+        calendar2.set(Calendar.MINUTE, 59);
+        calendar2.set(Calendar.SECOND, 59);
+        filterWhereClause = CrimeTable.Cols.DATE + " BETWEEN ? AND ? ";
+        filterWhereArgs = new String[]{String.valueOf(calendar1.getTimeInMillis()), String.valueOf(calendar2.getTimeInMillis())};
+    }
+
+    public void clearFilter() {
+        filterWhereClause = null;
+        filterWhereArgs = null;
+    }
+
+    public List<Crime> getCrimesByDate(Date date){
+        List<Crime> crimes = new ArrayList<>();
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTime(date);
+        calendar1.set(Calendar.HOUR, 0);
+        calendar1.set(Calendar.MINUTE, 0);
+        calendar1.set(Calendar.SECOND, 0);
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(date);
+        calendar2.set(Calendar.HOUR, 23);
+        calendar2.set(Calendar.MINUTE, 59);
+        calendar2.set(Calendar.SECOND, 59);
+        String[] whereArgDate = new String[]{String.valueOf(calendar1.getTimeInMillis()), String.valueOf(calendar2.getTimeInMillis())};
+        CrimeCursorWrapper cursor = queryCrimes(CrimeTable.Cols.DATE + " BETWEEN ? AND ? ", whereArgDate);
 
         try{
             cursor.moveToFirst();
@@ -94,4 +145,6 @@ public class CrimeLab {
 
         return values;
     }
+
+
 }

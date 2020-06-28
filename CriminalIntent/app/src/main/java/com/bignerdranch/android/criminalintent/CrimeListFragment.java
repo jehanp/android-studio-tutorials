@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +35,7 @@ public class CrimeListFragment extends Fragment{
 
     private static final String TAG = "CrimeListFragment";
     private static final int REQUEST_CRIME = 1;
+    private static final int REQUEST_DATE_FOR_FILTER = 2;
     private static final String ADAPTER_POSITION = "adapter_position_crime_list_fragment";
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
@@ -42,6 +45,13 @@ public class CrimeListFragment extends Fragment{
     private LinearLayout mAddFirstCrimeLinearLayout;
     private ImageButton mAddFirstCrimeButton;
     private int selectedItemAdapterPosition;
+
+    MenuItem menuItemFilter;
+    private boolean isCrimeDateFilterSet;
+
+    private ConstraintLayout mFilterLinearLayout;
+    private TextView mFilterDescriptionTextView;
+    private Button mFilterClearButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +66,18 @@ public class CrimeListFragment extends Fragment{
 
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mFilterLinearLayout = (ConstraintLayout) view.findViewById(R.id.filter_linear_layout);
+        mFilterDescriptionTextView = (TextView) mFilterLinearLayout.findViewById(R.id.filter_description);
+        mFilterClearButton = (Button) mFilterLinearLayout.findViewById(R.id.clear_filter_button);
+        mFilterClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CrimeLab.get(getActivity()).clearFilter();
+                isCrimeDateFilterSet = false;
+                updateCrimeListUI();
+            }
+        });
 
         mAddFirstCrimeLinearLayout = (LinearLayout) view.findViewById(R.id.add_first_crime_placeholder);
 
@@ -99,6 +121,8 @@ public class CrimeListFragment extends Fragment{
         }else{
             subtitleItem.setTitle(R.string.show_subtitle);
         }
+
+        menuItemFilter = menu.findItem(R.id.filter);
     }
 
     @Override
@@ -111,6 +135,10 @@ public class CrimeListFragment extends Fragment{
 
                 Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId(), position);
                 startActivity(intent);
+                return true;
+            case R.id.filter:
+                intent = DatePickerActivity.newIntent(getActivity(), new Date());
+                startActivityForResult(intent, REQUEST_DATE_FOR_FILTER);
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -134,9 +162,26 @@ public class CrimeListFragment extends Fragment{
         }
 
         if(crimes.size()==0){
+            //no crimes in list
             mAddFirstCrimeLinearLayout.setVisibility(View.VISIBLE);
+            if(menuItemFilter != null){
+                menuItemFilter.setEnabled(false);
+            }
         }else{
-            mAddFirstCrimeLinearLayout.setVisibility(View.INVISIBLE);
+            //crimes present in list
+            mAddFirstCrimeLinearLayout.setVisibility(View.GONE);
+            if(menuItemFilter != null){
+                menuItemFilter.setEnabled(true);
+            }
+        }
+
+        if(isCrimeDateFilterSet){
+            //disable filter menu item
+            mFilterLinearLayout.setVisibility(View.VISIBLE);
+            menuItemFilter.setEnabled(false);
+            mFilterDescriptionTextView.setText("Crimes on ");
+        } else {
+            mFilterLinearLayout.setVisibility(View.GONE);
         }
     }
 
@@ -166,6 +211,14 @@ public class CrimeListFragment extends Fragment{
             if(resultCode == Activity.RESULT_OK){
                 selectedItemAdapterPosition = data.getIntExtra(ADAPTER_POSITION, -1);
                 Log.d(TAG, "selectedItemAdapterPosition: " + selectedItemAdapterPosition);
+            }
+        } else if (requestCode == REQUEST_DATE_FOR_FILTER){
+            if(resultCode == Activity.RESULT_OK){
+                Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                CrimeLab.get(getActivity()).setDateFilter(date);
+                isCrimeDateFilterSet = true;
+                updateCrimeListUI();
+                //List<Crime> crimes = CrimeLab.get(getActivity()).getCrimesByDate(date);
             }
         }
     }
